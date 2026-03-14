@@ -1,0 +1,8 @@
+{
+  "name": "@ai-sdk/core",
+  "version": "1.0.0",
+  "description": "AI-ready web SDK — adds structured /.ai/ endpoints to any Express app so AI agents can query product data without scraping HTML.",
+  "main": "index.js",
+  "keywords": ["ai", "llm", "sdk", "express", "ecommerce", "ai-agent"],
+  "license": "MIT"
+}
