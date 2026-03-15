@@ -40,25 +40,33 @@ app.get('/.well-known/ai', createWellKnownHandler(aiConfig));
 
 // llms.txt — site-level AI metadata (like robots.txt but for LLMs)
 app.get('/llms.txt', (req, res) => {
+    const base = process.env.STORE_URL || 'https://commercebridge.onrender.com';
     res.type('text/plain').send(
-`# Flipkart MERN Demo
+`# CommerceBridge AI API
+> A machine-readable product catalog for LLM agents and AI shopping assistants.
 
-> An AI-queryable ecommerce store. Use the /.ai/ endpoints to retrieve structured product data without scraping HTML.
+## Quick Start — Endpoint Index
 
-## AI API
+GET ${base}/.well-known/ai         # Capability discovery — start here
+GET ${base}/.ai/catalog            # Store overview: totals, categories, brands
+GET ${base}/.ai/products           # Product list (filterable, paginated)
+GET ${base}/.ai/search?q=KEYWORD   # Keyword search across product names
+GET ${base}/.ai/product/ID         # Full detail for a single product
 
-- [Capability Discovery](/.well-known/ai): Full endpoint listing, supported filters, and protocol info
-- [Catalog Overview](/.ai/catalog): Total products, available categories, top brands
-- [Product List](/.ai/products): Filterable by category, brand, price range, and rating. Supports pagination.
-- [Product Detail](/.ai/product/:id): Full structured product data including highlights and specifications
-- [Search](/.ai/search?q=): Keyword search across product names
+## Filters (append to ${base}/.ai/products)
 
-## Query Examples
+?category=Electronics|Mobiles|Laptops|Fashion|Appliances|Home
+?brand=Samsung|Apple|Sony|...
+?price_min=N&price_max=N
+?rating=N          (minimum stars, e.g. ?rating=4)
+?page=N&limit=N    (default: page=1, limit=20, max=100)
 
-- All electronics under Rs 50,000: /.ai/products?category=Electronics&price_max=50000
-- Search for laptops: /.ai/search?q=laptop
-- Apple products rated 4+: /.ai/products?brand=Apple&rating=4
-- Page 2 of results: /.ai/products?page=2&limit=20
+## Example Queries
+
+GET ${base}/.ai/products?category=Mobiles&price_max=30000
+GET ${base}/.ai/products?brand=Apple&rating=4
+GET ${base}/.ai/products?category=Electronics&brand=Sony&price_min=5000&price_max=50000
+GET ${base}/.ai/search?q=gaming+laptop
 `
     );
 });

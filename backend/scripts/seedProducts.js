@@ -1,6 +1,7 @@
 const path = require("path");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const { faker } = require("@faker-js/faker");
 
 dotenv.config({ path: path.join(__dirname, "..", "config", "config.env") });
 mongoose.set("strictQuery", true);
@@ -129,14 +130,9 @@ function buildVariantName(item, category, index) {
 }
 
 function buildDescription(item, category, index) {
-  const seasonText =
-    category === "Fashion"
-      ? "designed for everyday wear, commuting, and casual styling"
-      : category === "Home"
-        ? "built for practical daily use in modern Indian homes"
-        : "positioned for everyday usage with a balanced feature-to-price ratio";
-
-  return `${buildVariantName(item, category, index)} is a realistic seeded ${category.toLowerCase()} listing ${seasonText}. This record is intended to mimic the kind of structured catalog data found in a live ecommerce storefront, including recognizable branding, natural naming, pricing bands, and buyer-friendly merchandising copy.`;
+  const variantName = buildVariantName(item, category, index);
+  const fakerDesc = faker.commerce.productDescription();
+  return `${variantName} — ${fakerDesc}`;
 }
 
 function buildSpecifications(item, category, index) {
@@ -190,7 +186,19 @@ function buildHighlights(item, category, index) {
           ? `Configured in ${pickColor(index)} finish for premium desk presence`
           : `Available in ${pickColor(index)} finish`;
 
-  return [...item.highlights, variantSpecific];
+  return [...item.highlights, variantSpecific, faker.lorem.sentence()];
+}
+
+function buildReviews(userId, count, productRating) {
+  return Array.from({ length: count }, () => {
+    const rating = Math.min(5, Math.max(1, Math.round((productRating + faker.number.float({ min: -1, max: 0.5 })) * 10) / 10));
+    return {
+      user: userId,
+      name: faker.person.fullName(),
+      rating,
+      comment: faker.lorem.sentences(2),
+    };
+  });
 }
 
 function buildPrice(item, category, index) {
@@ -242,7 +250,7 @@ function buildProduct(item, category, index, userId) {
     warranty: item.warranty,
     ratings: rating,
     numOfReviews: reviewsCount,
-    reviews: [],
+    reviews: buildReviews(userId, 3 + (index % 6), rating),
     user: userId,
     createdAt: new Date(Date.now() - index * 86400000),
   };
@@ -286,7 +294,7 @@ async function seedProducts() {
   for (const category of categories) {
     const templates = catalog[category];
 
-    for (let i = 0; i < 50; i += 1) {
+    for (let i = 0; i < 150; i += 1) {
       const template = templates[i % templates.length];
       products.push(buildProduct(template, category, i, seederUser._id));
     }

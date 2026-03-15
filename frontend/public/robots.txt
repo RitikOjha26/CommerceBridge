@@ -1,3 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow:
+
+# This site exposes a machine-readable product catalog for AI agents.
+# Full endpoint index: /llms.txt
+# Capability discovery (JSON): /.well-known/ai
